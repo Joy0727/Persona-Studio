@@ -12,7 +12,12 @@ Python 3.10 or newer is required. The platform server uses the standard library.
 python3 server.py
 ```
 
-On macOS you can also double-click `Open Persona Studio.command`.
+On macOS, browser uploads/downloads may remove the launcher executable flag.
+Run the following once, then double-click `Open Persona Studio.command`:
+
+```sh
+chmod +x "Open Persona Studio.command"
+```
 The server binds to `127.0.0.1:8765` (or an available local port).
 This is a local application, not a GitHub Pages deployment.
 
