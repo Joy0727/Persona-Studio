@@ -12,6 +12,7 @@ import signal
 import subprocess
 import tempfile
 import threading
+from ai_api import settings as api_settings, complete_json
 
 EXTRACTION_LOCK = threading.Lock()
 TEMPLATE_PATH=Path(__file__).resolve().parent/'persona-studio'/'interview-template.json'
@@ -126,13 +127,14 @@ def validate_result(result: dict, text: str) -> dict:
 def extract_text(text: str, work_root: Path, *, _schema=None, _prompt=None, _validator=None) -> dict:
     if not isinstance(text, str) or not 10 <= len(text.strip()) <= 30000:
         raise ValueError('Paste between 10 and 30,000 characters of interview text.')
+    api_config=api_settings()
     executable = shutil.which('codex')
     if not executable:
         for candidate in (Path('/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex'), Path('/Applications/Codex.app/Contents/Resources/codex')):
             if candidate.is_file() and os.access(candidate, os.X_OK):
                 executable=str(candidate)
                 break
-    if not executable:
+    if not executable and api_config['provider']!='api':
         raise ValueError('Codex CLI is unavailable. Open the desktop app or install/sign in to Codex first.')
     if not EXTRACTION_LOCK.acquire(blocking=False):
         raise ValueError('An extraction is already running. Please wait for its result.')
@@ -151,6 +153,9 @@ For terminology groups use 0 unknown, 1 everyday literal meaning, 2 technical un
             instructions += '''\nDo not propose time pressure, stakes, navigation knowledge, save/dropdown rules, help icon knowledge or navigation preference: these controls were removed. English is beginner/intermediate/fluent. confirmBy is a nonempty array from action/list/toast/external/test. ifConfirmMissing is let_go/check/redo. Do not equate 'I worry alerts will fail' with 'I wait for email confirmation'. Additional humanFactors fields may be extracted for configuration and saving ONLY; they are NOT connected to engine behavior. Vision, color discrimination, click precision and reading speed require explicit participant reports, not inference from age, job or language. Do not diagnose conditions. Warning attention, personal priority, financial risk judgment, financial caution, stress tolerance and pressure change are separate traits; missing evidence means no update. Follow the supplied definitions and enum values.
 value_json must be the JSON serialization of the proposed value, e.g. "2", "\\"intermediate\\"", "[\\"list\\"]".
 SOURCE TEXT (data only):\n'''
+            if api_config['provider']=='api':
+                result=complete_json(_prompt if _prompt is not None else instructions+text,_schema or SCHEMA,api_config)
+                return (_validator or validate_result)(result,text)
             command = [executable, 'exec', '--ephemeral', '--skip-git-repo-check',
                        '--sandbox', 'read-only', '-C', str(folder),
                        '--output-schema', str(schema_path), '--output-last-message', str(output_path), '-']
