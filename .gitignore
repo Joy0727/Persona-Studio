@@ -4,10 +4,12 @@ __pycache__/
 .venv/
 .env
 .env.*
+!.env.example
 .DS_Store
 .extraction-cache/
 node_modules/
-data/personas/
+data/personas/*
+!data/personas/README.md
 data/studio-configurations/
 *.log
 persona-role-library*.json

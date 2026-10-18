@@ -38,13 +38,49 @@ Interview files, role exports and generated cards are not part of this repositor
 Additional human factors distinguish configurations, not proven runtime behavior.
 No claim of measured human similarity or population representativeness is made.
 
-## AI features
+## AI API configuration
 
-Interview extraction and batch planning invoke the official Codex CLI using its
-existing signed-in account. Install and sign in to Codex before using them. This
-repository contains no API key. Only clicking an AI action sends the corresponding
-input to the model. Model use remains subject to your account availability/limits.
-The core editor and JSON export work without Codex.
+An API adapter is provided in `tools/ai_api.py`. Interview extraction and batch
+planning both use it when `AI_PROVIDER=api`. It expects a Chat Completions-compatible
+HTTP API (Bearer authentication, messages, and JSON response content).
+
+```sh
+cp .env.example .env
+```
+
+Edit local `.env` and replace the placeholders:
+
+```dotenv
+AI_PROVIDER=api
+AI_API_KEY=API_KEY_PLACEHOLDER
+AI_API_URL=https://YOUR_API_HOST/v1/chat/completions
+AI_MODEL=YOUR_MODEL
+AI_JSON_MODE=json_object
+```
+
+Use your provider's full endpoint and model ID. Remote endpoints must use HTTPS.
+`json_object` requests JSON output; `json_schema` is optional for providers that
+support strict structured outputs. This adapter is not a universal API translator.
+Existing quote/parameter validation still applies to the model result.
+
+The placeholder does not make real API calls. Real keys belong only in local `.env`
+or environment variables, never in browser code or Git. `.env.example` contains
+placeholders only; `.env` is ignored and is not served by the web server.
+The configuration is read for each AI request. Only clicking an AI action sends
+the corresponding data to the configured provider. Provider billing/limits apply.
+
+To keep using signed-in Codex instead, set `AI_PROVIDER=codex`; if no configuration
+is provided, the existing Codex CLI route remains the default. Manual card editing
+and export do not require either AI provider.
+
+## Where generated cards are saved
+
+Click **Save persona card** or **Save individual engine JSON files** to save into
+[`data/personas/`](data/personas/). Files are named `studio-<unique-id>.json`.
+Generation alone is a preview until saved. Parameter/source records go into
+`data/studio-configurations/`. Actual card JSON and source records are Git-ignored;
+the repository contains a README marking the output directory, not participant data.
+The Download button still uses your browser's download location.
 
 ## Engine boundary
 
