@@ -98,7 +98,7 @@ class Handler(BaseHTTPRequestHandler):
             else:self.send_json({'error':'Unknown endpoint.'},404);return
             self.send_json(result)
         except (ValueError,KeyError,TypeError) as error:self.send_json({'error':str(error)},400)
-        except OSError:self.send_json({'error':'Could not access local files or start Codex. Check your setup.'},500)
+        except OSError:self.send_json({'error':'Could not access local files. Check local file permissions.'},500)
 
 
 def main():

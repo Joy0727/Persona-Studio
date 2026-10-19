@@ -41,7 +41,8 @@ No claim of measured human similarity or population representativeness is made.
 ## AI API configuration
 
 An API adapter is provided in `tools/ai_api.py`. Interview extraction and batch
-planning both use it when `AI_PROVIDER=api`. It expects a Chat Completions-compatible
+planning both use it directly. No desktop AI login or CLI is required.
+It expects a Chat Completions-compatible
 HTTP API (Bearer authentication, messages, and JSON response content).
 
 ```sh
@@ -51,7 +52,6 @@ cp .env.example .env
 Edit local `.env` and replace the placeholders:
 
 ```dotenv
-AI_PROVIDER=api
 AI_API_KEY=API_KEY_PLACEHOLDER
 AI_API_URL=https://YOUR_API_HOST/v1/chat/completions
 AI_MODEL=YOUR_MODEL
@@ -69,9 +69,10 @@ placeholders only; `.env` is ignored and is not served by the web server.
 The configuration is read for each AI request. Only clicking an AI action sends
 the corresponding data to the configured provider. Provider billing/limits apply.
 
-To keep using signed-in Codex instead, set `AI_PROVIDER=codex`; if no configuration
-is provided, the existing Codex CLI route remains the default. Manual card editing
-and export do not require either AI provider.
+There is no desktop AI or CLI fallback. Without API configuration, AI actions
+show a setup error; manual card editing, saving and export remain available.
+
+See [API_EXAMPLE.md](API_EXAMPLE.md) for a complete setup and test walkthrough.
 
 ## Where generated cards are saved
 
@@ -98,7 +99,7 @@ JSON is a container and is not a single engine input. Extra human factors live i
 
 - `server.py`: loopback HTTP server, structural validation, local saving, AI routes.
 - `tools/persona-studio/`: editor, role library, compiler and configuration templates.
-- `tools/survey_text.py`: interview evidence extraction through signed-in Codex.
+- `tools/survey_text.py`: interview evidence extraction through the configured API.
 - `tools/persona_batch.py`: AI value pools and sampling without replacement.
 - `tools/persona-builder.html`: upstream card conversion scaffold, not the runtime engine.
 - `data/version-a/flow.json`: fixed prototype task/knowledge definitions, not participant data.
