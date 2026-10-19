@@ -1,4 +1,4 @@
-"""Optional HTTP adapter for a Chat Completions-compatible API. No credentials in UI."""
+"""HTTP adapter for a Chat Completions-compatible API. No credentials in UI."""
 from __future__ import annotations
 import json
 import os
@@ -19,8 +19,7 @@ def settings():
             key,value=line.split('=',1);values[key.strip()]=value.strip().strip('"').strip("'")
     def get(key,default=''):return os.environ.get(key,values.get(key,default)).strip()
     result={key:get('AI_'+key.upper(),default) for key,default in {
-        'provider':'codex','api_url':'','api_key':'','model':'','json_mode':'json_object'}.items()}
-    if result['provider'] not in ('codex','api'):raise ValueError('AI_PROVIDER must be codex or api in .env.')
+        'api_url':'','api_key':'','model':'','json_mode':'json_object'}.items()}
     return result
 
 def complete_json(prompt,schema,config):
